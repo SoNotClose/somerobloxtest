@@ -39,9 +39,69 @@ local Window = Rayfield:CreateWindow({
       Key = {"Hello"}
    }
 })
-
+print("autosigmaobby")
 local MainTab = Window:CreateTab("Main", "crown")
 
-local Players=game:GetService("Players")local ReplicatedStorage=game:GetService("ReplicatedStorage")local RunService=game:GetService("RunService")local RemoteEvent=ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("RemoteEvent")local LocalPlayer=Players.LocalPlayer local AutoObbyRunning=false local attempting=false local lastAttemptTime=0 local attemptDelay=3.854 local AutoOBBY=MainTab:CreateToggle({Name="Auto Obby",CurrentValue=false,Flag="autoobby",Callback=function(Value)AutoObbyRunning=Value end})RunService.RenderStepped:Connect(function()if not AutoObbyRunning or attempting then return end if os.clock()-lastAttemptTime<attemptDelay then return end attempting=true lastAttemptTime=os.clock() local success=false for _,difficulty in ipairs({"Hard","Medium","Easy"})do local Character=LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()local HumanoidRootPart=Character:FindFirstChild("HumanoidRootPart")if not HumanoidRootPart then break end local initialPosition=HumanoidRootPart.Position RemoteEvent:FireServer("StartObby",difficulty)task.wait(0.6)local newPosition=HumanoidRootPart.Position local distanceMoved=(newPosition-initialPosition).Magnitude if distanceMoved>=8.7 then RemoteEvent:FireServer("CompleteObby")print("Completed "..difficulty)task.wait(0.6)RemoteEvent:FireServer("Teleport","Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")success=true break else end if not AutoObbyRunning then break end end attempting=false end)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
+local RemoteEvent = ReplicatedStorage:WaitForChild("Shared")
+    :WaitForChild("Framework")
+    :WaitForChild("Network")
+    :WaitForChild("Remote")
+    :WaitForChild("RemoteEvent")
 
+local LocalPlayer = Players.LocalPlayer
+local AutoObbyRunning = false
+local attempting = false
+local lastAttemptTime = 0
+local attemptDelay = 3.854
+
+local difficultyIndex = 1
+local difficulties = { "Hard", "Medium", "Easy" }
+
+local AutoOBBY = MainTab:CreateToggle({
+    Name = "Auto Obby",
+    CurrentValue = false,
+    Flag = "autoobby",
+    Callback = function(Value)
+        AutoObbyRunning = Value
+    end,
+})
+
+RunService.RenderStepped:Connect(function()
+    if not AutoObbyRunning or attempting then return end
+    if os.clock() - lastAttemptTime < attemptDelay then return end
+
+    attempting = true
+    lastAttemptTime = os.clock()
+
+    local difficulty = difficulties[difficultyIndex]
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+    if not HumanoidRootPart then attempting = false return end
+
+    local initialPosition = HumanoidRootPart.Position
+    RemoteEvent:FireServer("StartObby", difficulty)
+    task.wait(0.6)
+
+    local newPosition = HumanoidRootPart.Position
+    local distanceMoved = (newPosition - initialPosition).Magnitude
+
+    if distanceMoved >= 8.7 then
+        RemoteEvent:FireServer("CompleteObby")
+        print("Completed " .. difficulty)
+        task.wait(0.6)
+        RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
+        difficultyIndex = 1
+    else
+        warn(difficulty .. " obby not ready")
+        difficultyIndex += 1
+        if difficultyIndex > #difficulties then
+            difficultyIndex = 1
+        end
+    end
+
+    attempting = false
+end)
