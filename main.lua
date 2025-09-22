@@ -55,6 +55,8 @@ local RemoteEvent = ReplicatedStorage:WaitForChild("Shared")
 local LocalPlayer = Players.LocalPlayer
 local AutoObbyRunning = false
 local attempting = false
+local lastAttemptTime = 0
+local attemptDelay = 1.5 -- seconds between attempts so ur log doesnt look fill af
 
 local AutoOBBY = MainTab:CreateToggle({
     Name = "Auto Obby",
@@ -67,8 +69,10 @@ local AutoOBBY = MainTab:CreateToggle({
 
 RunService.RenderStepped:Connect(function()
     if not AutoObbyRunning or attempting then return end
+    if os.clock() - lastAttemptTime < attemptDelay then return end
 
     attempting = true
+    lastAttemptTime = os.clock()
 
     local success = false
     for _, difficulty in ipairs({ "Hard", "Medium", "Easy" }) do
@@ -85,6 +89,7 @@ RunService.RenderStepped:Connect(function()
 
         if distanceMoved >= 5 then
             RemoteEvent:FireServer("CompleteObby")
+            print("Completed " .. difficulty)
             task.wait(0.2)
             RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
             success = true
@@ -98,4 +103,5 @@ RunService.RenderStepped:Connect(function()
 
     attempting = false
 end)
+
 
