@@ -42,10 +42,10 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Main", "crown")
 
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local RemoteEvent = ReplicatedStorage:WaitForChild("Shared")
     :WaitForChild("Framework")
     :WaitForChild("Network")
@@ -56,7 +56,20 @@ local LocalPlayer = Players.LocalPlayer
 local AutoObbyRunning = false
 local attempting = false
 local lastAttemptTime = 0
-local attemptDelay = 1.5 -- seconds between attempts so ur log doesnt look fill af
+local attemptDelay = 1.8512
+
+local hardCount, mediumCount, easyCount = 0, 0, 0
+
+local obbyWebhook = MainTab:CreateInput({
+    Name = "Obby Webhook",
+    CurrentValue = "",
+    PlaceholderText = "Paste Discord Webhook URL",
+    RemoveTextAfterFocusLost = false,
+    Flag = "Input1",
+    Callback = function(Text)
+         
+    end,
+})
 
 local AutoOBBY = MainTab:CreateToggle({
     Name = "Auto Obby",
@@ -66,6 +79,37 @@ local AutoOBBY = MainTab:CreateToggle({
         AutoObbyRunning = Value
     end,
 })
+
+local function sendObbyWebhook(difficulty, count)
+    local webhookURL = obbyWebhook.CurrentValue
+    if webhookURL == "" then return end
+
+    local colorMap = {
+        Hard = 16753920,  
+        Medium = 16776960, 
+        Easy = 65280     
+    }
+
+    local embed = {
+        title = difficulty:upper() .. " OBBY COMPLETE",
+        color = colorMap[difficulty],
+        fields = {
+            {
+                name = "Time",
+                value = os.date("%I:%M:%S %p"),
+                inline = true
+            },
+            {
+                name = "Count",
+                value = tostring(count),
+                inline = true
+            }
+        }
+    }
+
+    local payload = HttpService:JSONEncode({ embeds = { embed } })
+    HttpService:PostAsync(webhookURL, payload, Enum.HttpContentType.ApplicationJson)
+end
 
 RunService.RenderStepped:Connect(function()
     if not AutoObbyRunning or attempting then return end
@@ -87,11 +131,23 @@ RunService.RenderStepped:Connect(function()
         local newPosition = HumanoidRootPart.Position
         local distanceMoved = (newPosition - initialPosition).Magnitude
 
-        if distanceMoved >= 5 then
+        if distanceMoved >= 15.23 then
             RemoteEvent:FireServer("CompleteObby")
-            print("Completed " .. difficulty)
             task.wait(0.2)
             RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
+
+            if difficulty == "Hard" then
+                hardCount += 1
+                sendObbyWebhook("Hard", hardCount)
+            elseif difficulty == "Medium" then
+                mediumCount += 1
+                sendObbyWebhook("Medium", mediumCount)
+            elseif difficulty == "Easy" then
+                easyCount += 1
+                sendObbyWebhook("Easy", easyCount)
+            end
+
+            print("Completed " .. difficulty)
             success = true
             break
         else
@@ -103,5 +159,6 @@ RunService.RenderStepped:Connect(function()
 
     attempting = false
 end)
+
 
 
