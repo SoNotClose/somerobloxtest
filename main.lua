@@ -1,15 +1,5 @@
 -- ignore ingnore yes im skidding fuck offffffffff
 -- im just fucking aroiud with lua code
-local TeleportService = game:GetService("TeleportService")
-
-TeleportService.OnTeleport:Connect(function(state)
-    if state == Enum.TeleportState.InProgress then
-        queue_on_teleport([[
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/SoNotClose/somerobloxtest/main/main.lua"))()
-        ]])
-    end
-end)
-
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
