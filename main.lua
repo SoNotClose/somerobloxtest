@@ -46,6 +46,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
+
 local RemoteEvent = ReplicatedStorage:WaitForChild("Shared")
     :WaitForChild("Framework")
     :WaitForChild("Network")
@@ -56,7 +57,7 @@ local LocalPlayer = Players.LocalPlayer
 local AutoObbyRunning = false
 local attempting = false
 local lastAttemptTime = 0
-local attemptDelay = 1.8512
+local attemptDelay = 1.5
 
 local hardCount, mediumCount, easyCount = 0, 0, 0
 
@@ -67,7 +68,7 @@ local obbyWebhook = MainTab:CreateInput({
     RemoveTextAfterFocusLost = false,
     Flag = "Input1",
     Callback = function(Text)
-         
+        -- wah
     end,
 })
 
@@ -81,34 +82,55 @@ local AutoOBBY = MainTab:CreateToggle({
 })
 
 local function sendObbyWebhook(difficulty, count)
-    local webhookURL = obbyWebhook.CurrentValue
-    if webhookURL == "" then return end
+    local url = obbyWebhook.CurrentValue
+    if url == "" then return end
 
     local colorMap = {
         Hard = 16753920,  
-        Medium = 16776960, 
-        Easy = 65280     
+        Medium = 16776960,
+        Easy = 65280      
     }
 
     local embed = {
         title = difficulty:upper() .. " OBBY COMPLETE",
         color = colorMap[difficulty],
         fields = {
-            {
-                name = "Time",
-                value = os.date("%I:%M:%S %p"),
-                inline = true
-            },
-            {
-                name = "Count",
-                value = tostring(count),
-                inline = true
-            }
+            { name = "Time", value = os.date("%I:%M:%S %p"), inline = true },
+            { name = "Count", value = tostring(count), inline = true }
         }
     }
 
     local payload = HttpService:JSONEncode({ embeds = { embed } })
-    HttpService:PostAsync(webhookURL, payload, Enum.HttpContentType.ApplicationJson)
+
+    if http_request then
+        http_request({
+            Url = url,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = payload
+        })
+    elseif syn and syn.request then
+        syn.request({
+            Url = url,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = payload
+        })
+    elseif fluxus and fluxus.request then
+        fluxus.request({
+            Url = url,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = payload
+        })
+    elseif request then
+        request({
+            Url = url,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = payload
+        })
+    end
 end
 
 RunService.RenderStepped:Connect(function()
@@ -131,7 +153,7 @@ RunService.RenderStepped:Connect(function()
         local newPosition = HumanoidRootPart.Position
         local distanceMoved = (newPosition - initialPosition).Magnitude
 
-        if distanceMoved >= 15.23 then
+        if distanceMoved >= 6.7 then
             RemoteEvent:FireServer("CompleteObby")
             task.wait(0.2)
             RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
