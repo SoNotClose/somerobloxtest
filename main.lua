@@ -1,3 +1,6 @@
+-- ignore ingnore yes im skidding fuck offffffffff
+-- im just fucking aroiud with lua code
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -67,26 +70,27 @@ local AutoOBBY = MainTab:CreateToggle({
                     local initialPosition = HumanoidRootPart.Position
 
                     RemoteEvent:FireServer("StartObby", difficulty)
-                    wait(0.5)
+                    wait(0.2)
 
                     local newPosition = HumanoidRootPart.Position
                     local distanceMoved = (newPosition - initialPosition).Magnitude
 
-                    if distanceMoved < 5 then
-                        warn(difficulty .. " obby not ready")
-                    else
+                    if distanceMoved >= 15 then
                         RemoteEvent:FireServer("CompleteObby")
-                        wait(0.5)
+                        wait(0.2)
 
                         RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
                         success = true
                         break
+                    else
+                        warn(difficulty .. " obby not ready")
                     end
                 end
 
                 if not success then break end
-                wait(3)
+                wait(1.5)
             end
         end)
     end,
 })
+
