@@ -12,49 +12,45 @@ end)
 
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
 local Window = Rayfield:CreateWindow({
-   Name = "BRAINROT",
-   Icon = 0,
-   LoadingTitle = "BRAINROT CLIENT",
-   LoadingSubtitle = "by Sahur",
-   ShowText = "", 
-   Theme = "Default",
-
-   ToggleUIKeybind = "K",
-
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false,
-
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil,
-      FileName = "BR Hub"
-   },
-
-   Discord = {
-      Enabled = false,
-      Invite = "noinvitelink",
-      RememberJoins = true
-   },
-
-   KeySystem = false,
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided",
-      FileName = "Key",
-      SaveKey = true,
-      GrabKeyFromSite = false,
-      Key = {"Hello"}
-   }
+    Name = "BRAINROT",
+    Icon = 0,
+    LoadingTitle = "BRAINROT CLIENT",
+    LoadingSubtitle = "by Sahur",
+    ShowText = "",
+    Theme = "Default",
+    ToggleUIKeybind = "K",
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false,
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "BR Hub"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Untitled",
+        Subtitle = "Key System",
+        Note = "No method of obtaining the key is provided",
+        FileName = "Key",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Hello"}
+    }
 })
+
 print("autosigmaobby")
 local MainTab = Window:CreateTab("Main", "crown")
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local RemoteEvent = ReplicatedStorage:WaitForChild("Shared")
     :WaitForChild("Framework")
@@ -70,6 +66,23 @@ local attemptDelay = 2.354
 
 local difficultyIndex = 1
 local difficulties = { "Hard", "Medium", "Easy" }
+
+local obbyEnds = {
+    Hard = Vector3.new(-1532.31, 5925.23, 22536.96),
+    Medium = Vector3.new(-1122.12, 5918.23, 22548.54),
+    Easy = Vector3.new(-790.59, 5932.23, 22613.33)
+}
+
+local function tweenToPosition(part, targetPosition)
+    local tweenInfo = TweenInfo.new(
+        math.random(2, 3), -- duration between 2–3 seconds
+        Enum.EasingStyle.Linear,
+        Enum.EasingDirection.Out
+    )
+    local goal = { Position = targetPosition }
+    local tween = TweenService:Create(part, tweenInfo, goal)
+    tween:Play()
+end
 
 local AutoOBBY = MainTab:CreateToggle({
     Name = "Auto Obby",
@@ -94,19 +107,17 @@ RunService.RenderStepped:Connect(function()
 
     local initialPosition = HumanoidRootPart.Position
     RemoteEvent:FireServer("StartObby", difficulty)
-    task.wait(0.25)
+    task.wait(math.random(25, 45) / 100)
 
     local newPosition = HumanoidRootPart.Position
     local distanceMoved = (newPosition - initialPosition).Magnitude
 
     if distanceMoved >= 8.7 then
-        RemoteEvent:FireServer("CompleteObby")
         print("Completed " .. difficulty)
-        task.wait(0.25)
-        RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
+        task.wait(math.random(25, 45) / 100)
+        tweenToPosition(HumanoidRootPart, obbyEnds[difficulty])
         difficultyIndex = 1
     else
-        -- warn(difficulty .. " obby not ready")
         difficultyIndex += 1
         if difficultyIndex > #difficulties then
             difficultyIndex = 1
@@ -115,3 +126,5 @@ RunService.RenderStepped:Connect(function()
 
     attempting = false
 end)
+
+Rayfield:LoadConfiguration();
