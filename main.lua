@@ -56,7 +56,7 @@ local LocalPlayer = Players.LocalPlayer
 local AutoObbyRunning = false
 local attempting = false
 local lastAttemptTime = 0
-local attemptDelay = 3.854
+local attemptDelay = 2.354
 
 local difficultyIndex = 1
 local difficulties = { "Hard", "Medium", "Easy" }
@@ -84,7 +84,7 @@ RunService.RenderStepped:Connect(function()
 
     local initialPosition = HumanoidRootPart.Position
     RemoteEvent:FireServer("StartObby", difficulty)
-    task.wait(0.6)
+    task.wait(0.25)
 
     local newPosition = HumanoidRootPart.Position
     local distanceMoved = (newPosition - initialPosition).Magnitude
@@ -92,11 +92,11 @@ RunService.RenderStepped:Connect(function()
     if distanceMoved >= 8.7 then
         RemoteEvent:FireServer("CompleteObby")
         print("Completed " .. difficulty)
-        task.wait(0.6)
+        task.wait(0.25)
         RemoteEvent:FireServer("Teleport", "Workspace.Worlds.Seven Seas.Areas.Classic Island.HouseSpawn")
         difficultyIndex = 1
     else
-        warn(difficulty .. " obby not ready")
+        -- warn(difficulty .. " obby not ready")
         difficultyIndex += 1
         if difficultyIndex > #difficulties then
             difficultyIndex = 1
